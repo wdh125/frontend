@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        input {
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Authentication Test</h2>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="password123">
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="authResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Products Test</h2>
+        <button onclick="testGetProducts()">Get Products</button>
+        <div id="productsResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Statistics Test</h2>
+        <button onclick="testStatistics()">Get Statistics</button>
+        <div id="statsResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let accessToken = localStorage.getItem('accessToken');
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const data = await makeRequest(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+
+                accessToken = data.accessToken;
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify({ username: data.username, role: data.role }));
+
+                showResult('authResult', data);
+            } catch (error) {
+                showResult('authResult', { error: error.message }, true);
+            }
+        }
+
+        async function testLogout() {
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                const data = await makeRequest(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    body: JSON.stringify({ refreshToken })
+                });
+
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                accessToken = null;
+
+                showResult('authResult', data);
+            } catch (error) {
+                showResult('authResult', { error: error.message }, true);
+            }
+        }
+
+        async function testGetProducts() {
+            try {
+                // Gọi API dựa trên trạng thái đăng nhập
+                const user = localStorage.getItem('user');
+                if (user) {
+                    // Đã đăng nhập - gọi admin API
+                    const data = await makeRequest(`${API_BASE}/products`);
+                    showResult('productsResult', data);
+                } else {
+                    // Chưa đăng nhập - gọi public API
+                    const data = await makeRequest(`${API_BASE}/products/available`);
+                    showResult('productsResult', data);
+                }
+            } catch (error) {
+                showResult('productsResult', { error: error.message }, true);
+            }
+        }
+
+        async function testStatistics() {
+            try {
+                const data = await makeRequest(`${API_BASE}/admin/statistics/overview`);
+                showResult('statsResult', data);
+            } catch (error) {
+                showResult('statsResult', { error: error.message }, true);
+            }
+        }
+
+        // Check if user is already logged in
+        window.onload = function() {
+            const user = localStorage.getItem('user');
+            if (user) {
+                showResult('authResult', { message: 'Already logged in', user: JSON.parse(user) });
+            }
+        };
+    </script>
+</body>
+</html> 
