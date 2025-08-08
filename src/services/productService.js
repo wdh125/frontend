@@ -86,9 +86,51 @@ export const productService = {
   },
 
   // Lấy sản phẩm theo danh mục (Customer)
-  async getProductsByCategory(categoryId) {
+  async getProductsByCategory(categoryId, params = {}) {
     try {
-      const response = await api.get(`/products/category/${categoryId}`)
+      const response = await api.get(`/products/category/${categoryId}`, { params })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Tìm kiếm sản phẩm (Customer)
+  async searchProducts(query, params = {}) {
+    try {
+      const response = await api.get('/products/search', { 
+        params: { query, ...params }
+      })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Lấy sản phẩm nổi bật (Customer)
+  async getFeaturedProducts() {
+    try {
+      const response = await api.get('/products/featured')
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Lấy sản phẩm mới nhất (Customer)
+  async getLatestProducts(limit = 10) {
+    try {
+      const response = await api.get('/products/latest', { params: { limit } })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Lấy sản phẩm bán chạy (Customer)
+  async getBestSellingProducts(limit = 10) {
+    try {
+      const response = await api.get('/products/best-selling', { params: { limit } })
       return response.data
     } catch (error) {
       throw error

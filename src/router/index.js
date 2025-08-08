@@ -28,6 +28,7 @@ import Dashboard from '../views/admin/dashboard/dashboard.vue'
 import HomeAdm from '../views/Home/Admin/admin.vue'
 import EditProduct from '../views/admin/EditProduct.vue'
 import TestAPI from '../components/TestAPI.vue'
+import APITestDashboard from '../components/APITestDashboard.vue'
 // import EditPasswordAdmin from '../views/customer/editPassword.vue'
 
 const routes = [
@@ -191,6 +192,11 @@ const routes = [
 		path: '/test-api',
 		name: 'TestAPI',
 		component: TestAPI
+	},
+	{
+		path: '/api-dashboard',
+		name: 'APITestDashboard',
+		component: APITestDashboard
 	}
 ]
 
@@ -217,14 +223,33 @@ router.beforeEach((to, from, next) => {
 		// Cho phép cả user đã login và chưa login xem trang Home
 		next()
 	} else if (to.matched.some(record => record.meta.requiresAuth)) {
-		if (!localStorage.getItem('accessToken')) {
+		const token = localStorage.getItem('accessToken')
+		const user = localStorage.getItem('user')
+		
+		if (!token) {
 			// Thông báo khi bị logout
 			if (from.path !== '/auth/login' && from.path !== '/auth/signup') {
 				console.log('Session expired. Redirecting to login...')
-				// Có thể thêm SweetAlert2 ở đây nếu muốn
 			}
 			next({ path: '/auth/login' })
 		} else {
+			// Kiểm tra role-based access
+			if (user) {
+				const userData = JSON.parse(user)
+				
+				// Kiểm tra nếu user là admin và đang truy cập admin routes
+				if (to.path.startsWith('/admin') && userData.role !== 'ADMIN') {
+					next({ path: '/cust/product' })
+					return
+				}
+				
+				// Kiểm tra nếu user là customer và đang truy cập customer routes
+				if (to.path.startsWith('/cust') && userData.role !== 'USER') {
+					next({ path: '/admin/dashboard' })
+					return
+				}
+			}
+			
 			next()
 		}
 	} else if (to.matched.some(record => record.meta.requiresVisitor)) {
@@ -234,7 +259,7 @@ router.beforeEach((to, from, next) => {
 			const user = localStorage.getItem('user')
 			if (user) {
 				const userData = JSON.parse(user)
-				if (userData.role === 'ROLE_ADMIN') {
+				if (userData.role === 'ADMIN') {
 					next({ path: '/admin/dashboard' })
 				} else {
 					next({ path: '/cust/product' })

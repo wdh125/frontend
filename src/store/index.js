@@ -5,12 +5,22 @@ import Swal from 'sweetalert2'
 // Import modules
 import auth from './modules/auth'
 import products from './modules/products'
+import categories from './modules/categories'
+import orders from './modules/orders'
+import payments from './modules/payments'
+import reservations from './modules/reservations'
+import users from './modules/users'
 import statistics from './modules/statistics'
 
 export default createStore({
 	modules: {
 		auth,
 		products,
+		categories,
+		orders,
+		payments,
+		reservations,
+		users,
 		statistics
 	},
 	state: {

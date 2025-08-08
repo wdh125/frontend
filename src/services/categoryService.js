@@ -4,9 +4,9 @@ export const categoryService = {
   // ===== ADMIN APIs =====
 
   // Lấy tất cả danh mục (Admin)
-  async getAllCategories() {
+  async getAllCategories(params = {}) {
     try {
-      const response = await api.get('/categories')
+      const response = await api.get('/categories', { params })
       return response.data
     } catch (error) {
       throw error
@@ -24,9 +24,9 @@ export const categoryService = {
   },
 
   // Lấy sản phẩm theo danh mục (Admin)
-  async getProductsByCategory(id) {
+  async getProductsByCategory(id, params = {}) {
     try {
-      const response = await api.get(`/categories/${id}/products`)
+      const response = await api.get(`/categories/${id}/products`, { params })
       return response.data
     } catch (error) {
       throw error
