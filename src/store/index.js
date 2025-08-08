@@ -9,8 +9,11 @@ import categories from './modules/categories'
 import orders from './modules/orders'
 import payments from './modules/payments'
 import reservations from './modules/reservations'
+import tables from './modules/tables'
 import users from './modules/users'
 import statistics from './modules/statistics'
+import notifications from './modules/notifications'
+import settings from './modules/settings'
 
 export default createStore({
 	modules: {
@@ -20,8 +23,11 @@ export default createStore({
 		orders,
 		payments,
 		reservations,
+		tables,
 		users,
-		statistics
+		statistics,
+		notifications,
+		settings
 	},
 	state: {
 		allCheckout: [],

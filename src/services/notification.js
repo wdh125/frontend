@@ -6,7 +6,7 @@ export const notificationService = {
   // Lấy thông báo của người dùng
   async getMyNotifications(params = {}) {
     try {
-      const response = await api.get('/notifications/my-notifications', { params })
+      const response = await api.get('/notifications/my', { params })
       return response.data
     } catch (error) {
       throw error
