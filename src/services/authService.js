@@ -5,12 +5,12 @@ export const authService = {
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials)
-      const { accessToken, refreshToken, username, role } = response.data
+      const { accessToken, refreshToken, user } = response.data
 
-      // Lưu token vào localStorage
+      // Lưu token và thông tin user vào localStorage
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', refreshToken)
-      localStorage.setItem('user', JSON.stringify({ username, role }))
+      localStorage.setItem('user', JSON.stringify(user))
 
       return response.data
     } catch (error) {
@@ -33,10 +33,7 @@ export const authService = {
     try {
       const refreshToken = localStorage.getItem('refreshToken')
       if (refreshToken) {
-        // Sử dụng responseType: 'text' để tránh lỗi JSON parsing
-        await api.post('/auth/logout', { refreshToken }, {
-          responseType: 'text'
-        })
+        await api.post('/auth/logout', { refreshToken })
       }
 
       // Xóa token khỏi localStorage
@@ -72,6 +69,62 @@ export const authService = {
     }
   },
 
+  // Quên mật khẩu
+  async forgotPassword(email) {
+    try {
+      const response = await api.post('/auth/forgot-password', { email })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Đặt lại mật khẩu
+  async resetPassword(token, newPassword) {
+    try {
+      const response = await api.post('/auth/reset-password', {
+        token,
+        newPassword
+      })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Xác thực email
+  async verifyEmail(token) {
+    try {
+      const response = await api.post('/auth/verify-email', { token })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Gửi lại email xác thực
+  async resendVerificationEmail(email) {
+    try {
+      const response = await api.post('/auth/resend-verification', { email })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Đổi mật khẩu
+  async changePassword(currentPassword, newPassword) {
+    try {
+      const response = await api.post('/auth/change-password', {
+        currentPassword,
+        newPassword
+      })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
   // Kiểm tra user đã đăng nhập chưa
   isAuthenticated() {
     const token = localStorage.getItem('accessToken')
@@ -87,12 +140,22 @@ export const authService = {
   // Kiểm tra user có role admin không
   isAdmin() {
     const user = this.getCurrentUser()
-    return user && user.role === 'ROLE_ADMIN'
+    return user && user.role === 'ADMIN'
   },
 
   // Kiểm tra user có role customer không
   isCustomer() {
     const user = this.getCurrentUser()
-    return user && user.role === 'ROLE_CUSTOMER'
+    return user && user.role === 'USER'
+  },
+
+  // Lấy token hiện tại
+  getToken() {
+    return localStorage.getItem('accessToken')
+  },
+
+  // Lấy refresh token
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken')
   }
 }
