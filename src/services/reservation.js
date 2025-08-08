@@ -68,7 +68,7 @@ export const reservationService = {
   // Kiểm tra bàn có sẵn
   async checkTableAvailability(params) {
     try {
-      const response = await api.get('/reservations/available-tables', { params })
+      const response = await api.get('/tables/available', { params })
       return response.data
     } catch (error) {
       throw error
@@ -174,7 +174,7 @@ export const reservationService = {
   // Lấy danh sách bàn (Admin)
   async getAllTables() {
     try {
-      const response = await api.get('/reservations/tables')
+      const response = await api.get('/tables')
       return response.data
     } catch (error) {
       throw error
@@ -184,7 +184,7 @@ export const reservationService = {
   // Tạo bàn mới (Admin)
   async createTable(tableData) {
     try {
-      const response = await api.post('/reservations/tables', tableData)
+      const response = await api.post('/tables', tableData)
       return response.data
     } catch (error) {
       throw error
@@ -194,7 +194,7 @@ export const reservationService = {
   // Cập nhật thông tin bàn (Admin)
   async updateTable(tableId, tableData) {
     try {
-      const response = await api.put(`/reservations/tables/${tableId}`, tableData)
+      const response = await api.put(`/tables/${tableId}`, tableData)
       return response.data
     } catch (error) {
       throw error
@@ -204,7 +204,7 @@ export const reservationService = {
   // Xóa bàn (Admin)
   async deleteTable(tableId) {
     try {
-      await api.delete(`/reservations/tables/${tableId}`)
+      await api.delete(`/tables/${tableId}`)
       return { message: 'Xóa bàn thành công' }
     } catch (error) {
       throw error
@@ -214,7 +214,7 @@ export const reservationService = {
   // Bật/tắt bàn (Admin)
   async toggleTableActive(tableId) {
     try {
-      const response = await api.patch(`/reservations/tables/${tableId}/toggle-active`)
+      const response = await api.patch(`/tables/${tableId}/toggle-active`)
       return response.data
     } catch (error) {
       throw error

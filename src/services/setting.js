@@ -1,6 +1,18 @@
 import api from './api'
 
 export const settingService = {
+  // ===== PUBLIC SETTINGS =====
+  
+  // Lấy cài đặt công khai
+  async getPublicSettings() {
+    try {
+      const response = await api.get('/settings/public-list')
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
   // ===== SYSTEM SETTINGS =====
 
   // Lấy tất cả cài đặt hệ thống (Admin)

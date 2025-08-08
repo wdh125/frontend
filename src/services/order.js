@@ -71,7 +71,7 @@ export const orderService = {
   // Lấy tất cả đơn hàng (Admin)
   async getAllOrders(params = {}) {
     try {
-      const response = await api.get('/orders', { params })
+      const response = await api.get('/admin/orders', { params })
       return response.data
     } catch (error) {
       throw error
@@ -81,7 +81,7 @@ export const orderService = {
   // Cập nhật trạng thái đơn hàng (Admin)
   async updateOrderStatus(orderId, status) {
     try {
-      const response = await api.patch(`/orders/${orderId}/status`, { status })
+      const response = await api.patch(`/admin/orders/${orderId}/status`, { status })
       return response.data
     } catch (error) {
       throw error
